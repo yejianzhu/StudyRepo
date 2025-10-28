@@ -16,7 +16,7 @@ public class JwtUtil {
      * @param secretKey jwt秘钥
      * @param ttlMillis jwt过期时间(毫秒)
      * @param claims    设置的信息
-     * @return
+     * @return String
      */
     public static String createJWT(String secretKey, long ttlMillis, Map<String, Object> claims) {
         // 指定签名的时候使用的签名算法，也就是header那部分
@@ -36,6 +36,15 @@ public class JwtUtil {
                 .setExpiration(exp);
 
         return builder.compact();
+
+        //用链式编程更简洁!!
+//        public static String createJWT(String secretKey, long ttlMillis, Map<String, Object> claims) {
+//            return Jwts.builder()
+//                    .signWith(SignatureAlgorithm.HS256, secretKey.getBytes(StandardCharsets.UTF_8))
+//                    .addClaims(claims)
+//                    .setExpiration(new Date(System.currentTimeMillis() + expMillis))
+//                    .compact();
+//        }
     }
 
     /**

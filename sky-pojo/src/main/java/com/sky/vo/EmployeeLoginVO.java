@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @Data
-@Builder
+@Builder//学学这个注解,可以通过链式编程的方式,创建对象
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description = "员工登录返回的数据格式")

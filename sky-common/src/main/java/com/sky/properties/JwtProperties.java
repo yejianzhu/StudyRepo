@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "sky.jwt")
+@ConfigurationProperties(prefix = "sky.jwt")//自动将yml文件配置好的值自动注入属性中
 @Data
 public class JwtProperties {
 
