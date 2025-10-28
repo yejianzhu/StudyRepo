@@ -73,6 +73,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     /**
      * 扩展Spring MVC框架的消息转换器
+     * 重写extendMessageConverters方法
      * @param converters
      */
     @Override
