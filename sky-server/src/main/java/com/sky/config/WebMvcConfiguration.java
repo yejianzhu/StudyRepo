@@ -23,23 +23,23 @@ import java.util.List;
 /**
  * 配置类，注册web层相关组件
  */
-@Configuration
+@Configuration//将该类标记为配置类
 @Slf4j
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
+    //将自定义拦截器在配置类中进行依赖注入
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
 
     /**
      * 注册自定义拦截器
-     *
      * @param registry
      */
     protected void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
         registry.addInterceptor(jwtTokenAdminInterceptor)
-                .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/employee/login");
+                .addPathPatterns("/admin/**")//这些访问路径要拦截
+                .excludePathPatterns("/admin/employee/login");//这个登录路径放行
     }
 
     /**
@@ -81,7 +81,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         log.info("扩展消息转换器");
         //创建一个消息转换器
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        //需要为消息转换器设置一个对象转换器,对象转换器可以将Java对象序列化为json数据
+        //需要为消息转换器设置一个对象转换器,对象转换器可以将Java对象序列化为json数据,这里用的是com.sky.json包下的自定义对象转换器
         converter.setObjectMapper(new JacksonObjectMapper());
         //将自己的消息转换器加进容器,index表示优先级
         converters.add(0,converter);

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @Data
-@Builder//学学这个注解,可以通过链式编程的方式,创建对象
+@Builder//该注解可以实现链式构建对象:EmployeeLoginVO employeeLoginVO=EmployeeLoginVO.builder().id().userName()
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description = "员工登录返回的数据格式")

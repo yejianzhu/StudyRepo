@@ -6,6 +6,7 @@ import com.sky.entity.Employee;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface EmployeeMapper {
@@ -20,6 +21,7 @@ public interface EmployeeMapper {
 
     /**
      * 新增员工
+     * 使用驼峰映射
      * @param employee
      */
     @Insert("insert into employee(name,employee.username,password,phone,sex,id_number,create_time,update_time,create_user,update_user) " +
@@ -34,4 +36,11 @@ public interface EmployeeMapper {
      * @return
      */
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 启用禁用员工账号
+     * 为了提高该方法的复用性,对员工的修改是对员工所有字段的修改
+     * @param employee
+     */
+    void update(Employee employee);
 }

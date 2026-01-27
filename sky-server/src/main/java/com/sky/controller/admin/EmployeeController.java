@@ -11,7 +11,7 @@ import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -24,21 +24,26 @@ import java.util.Map;
 /**
  * 员工管理
  */
-@Tag(name="员工管理接口")
+@Tag(name="员工管理接口")//swagger注解
 @RestController
 @RequestMapping("/admin/employee")
-@Slf4j
+@Slf4j//自动生成log对象,进行日志输出,无需再手动声明
 public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
     @Autowired
-    private JwtProperties jwtProperties;//!
+    private JwtProperties jwtProperties;//该类为yml配置绑定类,获取yml文件的数据,这个类主要用于生成令牌
+
 
     /**
-     * 登录
-     *
-     * @param employeeLoginDTO
+     * 登录功能
+     * 注意!注意!注意!客户端登录网站时,拦截器会校验令牌是否合法
+     * 但这一操作是spring自动进行的,不需要手动写代码,所以可能会忽略
+     * 这一操作具体需要到com.sky.interceptor包和com.sky.config包下查看
+     * 而且需要仔细看,因为这一部分不太懂
+     * 开始运行程序,会先扫描配置类,然后开始拦截,通过拦截器后,访问Controller层的方法
+     * @param employeeLoginDTO 员工登录DTO
      * @return
      */
     @PostMapping("/login")
@@ -50,11 +55,11 @@ public class EmployeeController {
 
         //登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
-        claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
+        claims.put(JwtClaimsConstant.EMP_ID, employee.getId());//将员工id放进token中
         String token = JwtUtil.createJWT(
-                jwtProperties.getAdminSecretKey(),
-                jwtProperties.getAdminTtl(),
-                claims);
+                jwtProperties.getAdminSecretKey(),//yml中配置的密钥
+                jwtProperties.getAdminTtl(),//yml中配置的令牌有效时间
+                claims);//claims意为身份声明,键值对形式,即用户的一些信息,这里是员工的id
 
         EmployeeLoginVO employeeLoginVO = EmployeeLoginVO.builder()
                 .id(employee.getId())
@@ -68,7 +73,6 @@ public class EmployeeController {
 
     /**
      * 退出
-     *
      * @return
      */
     @PostMapping("/logout")
@@ -78,8 +82,8 @@ public class EmployeeController {
 
     /**
      * 新增员工
-     * @param employeeDTO
-     * @return
+     * @param employeeDTO 员工DTO
+     * @return Result
      */
     @Operation(summary = "新增员工")
     @PostMapping
@@ -91,6 +95,7 @@ public class EmployeeController {
 
     /**
      * 员工分页查询
+     * 请求参数可以放在Restful风格URL中(路径参数或请求参数两种形式)和请求体中,该方法的请求参数就是放在请求体中
      * @param  employeePageQueryDTO
      * @return Result<PageResult>
      */
@@ -98,7 +103,20 @@ public class EmployeeController {
     @Operation(summary = "员工分页查询")
     public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
         log.info("分页查询参数: {}", employeePageQueryDTO);
-        PageResult pageResult= employeeService.pageQuery(employeePageQueryDTO);
+        PageResult pageResult= employeeService.pageQuery(employeePageQueryDTO);//查询出总记录数和当前页码数据信息
         return Result.success(pageResult);
+    }
+
+    /**
+     * 启用禁用员工账号
+     * @param status 员工账号状态,为路径参数,在URL中,使用@PathVariable注解
+     * @param id 被操作的员工id,为查询参数,传递到后端时,一样在URL,但Restful风格的URL中@PostMapping等注解只关注路径,不需要展示出来
+     * @return Result
+     */
+    @PostMapping("/status/{status}")
+    public Result startOrStop(@PathVariable Integer status,Long id) {
+        log.info("启用禁用员工账号:{},{}", status, id);
+        employeeService.startOrStop(status,id);
+        return Result.success();
     }
 }

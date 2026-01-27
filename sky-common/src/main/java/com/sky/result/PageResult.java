@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * 封装分页查询结果
+ * 返回一个类对象,要实现序列化
  */
 @Data
 @AllArgsConstructor
