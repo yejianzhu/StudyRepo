@@ -18,13 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.PushBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 员工管理
  */
-@Tag(name="员工管理接口")//swagger注解
+@Tag(name = "员工管理接口")//swagger注解
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j//自动生成log对象,进行日志输出,无需再手动声明
@@ -34,7 +35,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
     @Autowired
     private JwtProperties jwtProperties;//该类为yml配置绑定类,获取yml文件的数据,这个类主要用于生成令牌
-
+    private int id;
 
     /**
      * 登录功能
@@ -43,6 +44,7 @@ public class EmployeeController {
      * 这一操作具体需要到com.sky.interceptor包和com.sky.config包下查看
      * 而且需要仔细看,因为这一部分不太懂
      * 开始运行程序,会先扫描配置类,然后开始拦截,通过拦截器后,访问Controller层的方法
+     *
      * @param employeeLoginDTO 员工登录DTO
      * @return
      */
@@ -73,6 +75,7 @@ public class EmployeeController {
 
     /**
      * 退出
+     *
      * @return
      */
     @PostMapping("/logout")
@@ -82,6 +85,7 @@ public class EmployeeController {
 
     /**
      * 新增员工
+     *
      * @param employeeDTO 员工DTO
      * @return Result
      */
@@ -96,27 +100,54 @@ public class EmployeeController {
     /**
      * 员工分页查询
      * 请求参数可以放在Restful风格URL中(路径参数或请求参数两种形式)和请求体中,该方法的请求参数就是放在请求体中
-     * @param  employeePageQueryDTO
+     *
+     * @param employeePageQueryDTO
      * @return Result<PageResult>
      */
     @GetMapping("/page")
     @Operation(summary = "员工分页查询")
     public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
         log.info("分页查询参数: {}", employeePageQueryDTO);
-        PageResult pageResult= employeeService.pageQuery(employeePageQueryDTO);//查询出总记录数和当前页码数据信息
+        PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);//查询出总记录数和当前页码数据信息
         return Result.success(pageResult);
     }
 
     /**
      * 启用禁用员工账号
+     *
      * @param status 员工账号状态,为路径参数,在URL中,使用@PathVariable注解
-     * @param id 被操作的员工id,为查询参数,传递到后端时,一样在URL,但Restful风格的URL中@PostMapping等注解只关注路径,不需要展示出来
+     * @param id     被操作的员工id,为查询参数,传递到后端时,一样在URL,但Restful风格的URL中@PostMapping等注解只关注路径,不需要展示出来
      * @return Result
      */
     @PostMapping("/status/{status}")
-    public Result startOrStop(@PathVariable Integer status,Long id) {
+    public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("启用禁用员工账号:{},{}", status, id);
-        employeeService.startOrStop(status,id);
+        employeeService.startOrStop(status, id);
+        return Result.success();
+    }
+
+
+    /**
+     * 根据员工id查询回显员工信息
+     * @param id 员工id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public Result<Employee> getEmployeeById(@PathVariable Long id) {
+        log.info("要查询回显的员工id:{}", id);
+        Employee employee = employeeService.getEmployeeById(id);
+        return Result.success(employee);
+    }
+
+    /**
+     * 编辑员工信息
+     * @param employeeDTO 接受JSON格式的参数用@RequestBody
+     * @return
+     */
+    @PutMapping
+    public Result editEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("编辑员工信息:{}", employeeDTO);
+        employeeService.editEmployee(employeeDTO);
         return Result.success();
     }
 }
