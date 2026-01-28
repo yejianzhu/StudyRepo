@@ -8,7 +8,7 @@
     <select id="pageQuery" resultType="com.sky.entity.Employee">
         select * from employee
         <where>
-        <!--pagehelper已经设置好了分页查询条件会拼接到sql语句里,不需要在sql语句里面写了-->
+            <!--pagehelper已经设置好了分页查询条件会拼接到sql语句里,不需要在sql语句里面写了-->
             <if test="name!=null and name !=''">
                 and name like concat('%',#{name},'%')
             </if>
