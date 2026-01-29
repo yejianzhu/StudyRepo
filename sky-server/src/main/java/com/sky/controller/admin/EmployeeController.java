@@ -1,9 +1,11 @@
 package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
@@ -145,6 +147,21 @@ public class EmployeeController {
     public Result editEmployee(@RequestBody EmployeeDTO employeeDTO) {
         log.info("编辑员工信息:{}", employeeDTO);
         employeeService.editEmployee(employeeDTO);
+        return Result.success();
+    }
+
+    /**
+     * 修改员工密码
+     * 前端代码有问题,不按照接口文档设计
+     * 前端会发送旧密码和校验过的新密码(只有一个),但不会发送员工id
+     * @param passwordEditDTO
+     * @return
+     */
+    @PutMapping("/editPassword")
+    public Result editPassword(@RequestBody PasswordEditDTO passwordEditDTO) {
+        passwordEditDTO.setEmpId(BaseContext.getCurrentId());//由于前端没发id过来,这里需要自己设计
+        log.info("修改密码:{}", passwordEditDTO);
+        employeeService.editPassword(passwordEditDTO);
         return Result.success();
     }
 }

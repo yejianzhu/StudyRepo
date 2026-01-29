@@ -53,4 +53,12 @@ public interface EmployeeMapper {
      */
     @Select("select * from employee where id = #{id}")
     Employee getEmployeeById(Long id);
+
+    /**
+     * 查询员工密码
+     * @param empId
+     * @return
+     */
+    @Select("select password from employee where id=#{empId}")
+    String selectPassword(Long empId);
 }

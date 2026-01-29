@@ -9,9 +9,11 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
+import com.sky.exception.PasswordEditFailedException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
@@ -141,28 +143,57 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 根据员工id查询回显员工信息
+     *
      * @param id
      * @return
      */
     @Override
     public Employee getEmployeeById(Long id) {
-        Employee employee= employeeMapper.getEmployeeById(id);
+        Employee employee = employeeMapper.getEmployeeById(id);
         employee.setPassword("******");//密码处理一下不让浏览器知道
         return employee;
     }
 
     /**
      * 编辑员工信息
+     *
      * @param employeeDTO
      */
     @Override
     public void editEmployee(EmployeeDTO employeeDTO) {
-        Employee employee=new Employee();
+        Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);//对象属性拷贝
         //更新一些信息
 //        employee.setUpdateTime(LocalDateTime.now());
 //        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.update(employee);//复用update方法
+    }
+
+    /**
+     * 员工修改密码
+     *
+     * @param passwordEditDTO
+     */
+    @Override
+    public void editPassword(PasswordEditDTO passwordEditDTO) {
+        String oldPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getOldPassword().getBytes());
+        String newPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes());
+        //比较新旧密码是否一致
+        if (oldPassword.equals(newPassword)) {
+            throw new PasswordEditFailedException(MessageConstant.PASSWORD_EDIT_FAILED);
+        }
+        //根据id获取数据库中的密码
+        String password = employeeMapper.selectPassword(passwordEditDTO.getEmpId());
+        //如果数据库中的密码与传过来的旧密码不一致
+        if (!password.equals(oldPassword)) {
+            throw new PasswordEditFailedException(MessageConstant.PASSWORD_EDIT_FAILED);
+        }
+        //修改密码
+        Employee employee = Employee.builder()
+                .id(passwordEditDTO.getEmpId())
+                .password(newPassword)
+                .build();
+        employeeMapper.update(employee);
     }
 
 
